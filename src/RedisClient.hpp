@@ -1,7 +1,7 @@
 #ifndef REDIS_CLIENT_H
 #define REDIS_CLIENT_H
 
-#include "redis/hiredis.h"
+#include "hiredis/hiredis.h"
 #include <string>
 #include <vector>
 #include <list>
@@ -135,6 +135,7 @@ public:
     int ConnRequest(std::vector<CRedisCommand *> &vecRedisCmd);
 
 private:
+    bool CheckAndSetDb(bool connecting);
     bool ConnectToRedis(const std::string &strHost, int nPort, int nTimeout);
     bool Reconnect();
 
@@ -142,6 +143,7 @@ private:
     redisContext *m_pContext;
     time_t m_nUseTime;
     CRedisServer *m_pRedisServ;
+    int m_nCurrDb;
 };
 
 class CRedisServer
@@ -149,7 +151,7 @@ class CRedisServer
     friend class CRedisConnection;
     friend class CRedisClient;
 public:
-    CRedisServer(const std::string &strHost, int nPort, int nTimeout, int nConnNum);
+    CRedisServer(const std::string &strHost, int nPort, int nTimeout, int nConnNum, int nDb=0);
     virtual ~CRedisServer();
 
     void SetSlave(const std::string &strHost, int nPort);
@@ -176,6 +178,7 @@ private:
     int m_nCliTimeout;
     int m_nSerTimeout;
     int m_nConnNum;
+    int m_nDb;
 
     std::queue<CRedisConnection *> m_queIdleConn;
     std::vector<std::pair<std::string, int> > m_vecHosts;
@@ -211,7 +214,7 @@ public:
     CRedisClient();
     ~CRedisClient();
 
-    bool Initialize(const std::string &strHost, int nPort, int nTimeout, int nConnNum);
+    bool Initialize(const std::string &strHost, int nPort, int nTimeout = 3, int nConnNum = 4, int nDatabase = 0);
     bool IsCluster() { return m_bCluster; }
 
     Pipeline CreatePipeline();
@@ -241,6 +244,7 @@ public:
     int Scan(long *pnCursor, const std::string &strPattern, long nCount, std::vector<std::string> *pvecVal);
     int Ttl(const std::string &strKey, long *pnVal, Pipeline ppLine = nullptr);
     int Type(const std::string &strKey, std::string *pstrVal, Pipeline ppLine = nullptr);
+    int Select(int nDbId);
 
     /* interfaces for string */
     int Append(const std::string &strKey, const std::string &strVal, long *pnVal = nullptr, Pipeline ppLine = nullptr);

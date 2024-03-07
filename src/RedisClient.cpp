@@ -616,7 +616,7 @@ int CRedisCommand::FetchResult(const TFuncFetch &funcFetch)
 }
 
 // CRedisConnection methods
-CRedisConnection::CRedisConnection(CRedisServer *pRedisServ) : m_pContext(nullptr), m_nUseTime(0), m_pRedisServ(pRedisServ)
+CRedisConnection::CRedisConnection(CRedisServer *pRedisServ) : m_pContext(nullptr), m_nUseTime(0), m_pRedisServ(pRedisServ), m_nCurrDb(0)
 {
     Reconnect();
 }
@@ -628,16 +628,18 @@ CRedisConnection::~CRedisConnection(){
 int CRedisConnection::ConnRequest(CRedisCommand *pRedisCmd)
 {
     time_t tmNow = time(nullptr);
-    if (!m_pContext || tmNow - m_nUseTime >= m_pRedisServ->m_nSerTimeout)
+    if (!m_pContext || (m_pRedisServ->m_nSerTimeout > 0 && tmNow - m_nUseTime >= m_pRedisServ->m_nSerTimeout))
     {
         if (!Reconnect())
             return RC_RQST_ERR;
     }
 
+    CheckAndSetDb(false);
+
     int nRet = pRedisCmd->CmdRequest(m_pContext);
     if (nRet == RC_RQST_ERR)
     {
-        if (tmNow - m_nUseTime < m_pRedisServ->m_nSerTimeout)
+        if (m_pRedisServ->m_nSerTimeout <= 0 || tmNow - m_nUseTime < m_pRedisServ->m_nSerTimeout)
             return nRet;
         else if (!Reconnect())
             return RC_RQST_ERR;
@@ -653,11 +655,13 @@ int CRedisConnection::ConnRequest(CRedisCommand *pRedisCmd)
 int CRedisConnection::ConnRequest(std::vector<CRedisCommand *> &vecRedisCmd)
 {
     time_t tmNow = time(nullptr);
-    if (!m_pContext || tmNow - m_nUseTime >= m_pRedisServ->m_nSerTimeout)
+    if (!m_pContext || (m_pRedisServ->m_nSerTimeout > 0 && tmNow - m_nUseTime >= m_pRedisServ->m_nSerTimeout))
     {
         if (!Reconnect())
             return RC_RQST_ERR;
     }
+
+    CheckAndSetDb(false);
 
     int nRet = RC_SUCCESS;
     for (size_t i = 0; i < vecRedisCmd.size() && nRet == RC_SUCCESS; ++i)
@@ -676,6 +680,15 @@ bool CRedisConnection::ConnectToRedis(const std::string &strHost, int nPort, int
     m_pContext = redisConnectWithTimeout(strHost.c_str(), nPort, tmTimeout);
     if (!m_pContext || m_pContext->err)
     {
+        if (m_pContext)
+        {
+            redisFree(m_pContext);
+            m_pContext = nullptr;
+        }
+        return false;
+    }
+
+    if(!CheckAndSetDb(true)) {
         if (m_pContext)
         {
             redisFree(m_pContext);
@@ -709,9 +722,34 @@ bool CRedisConnection::Reconnect()
     return false;
 }
 
+inline bool CRedisConnection::CheckAndSetDb(bool connecting) {
+    if (!m_pContext) {
+        return false;
+    }
+
+    if (!connecting && m_nCurrDb == m_pRedisServ->m_nDb) {
+        return true;
+    }
+
+    auto* reply = static_cast<redisReply*>(redisCommand(m_pContext, "SELECT %d", m_pRedisServ->m_nDb));
+    if (!reply) {
+        return false;
+    }
+
+    if (reply->str == nullptr || strncasecmp(reply->str,  "OK", 2) != 0) {
+        freeReplyObject(reply);
+        return false;
+    } 
+
+    m_nCurrDb = m_pRedisServ->m_nDb;
+    freeReplyObject(reply);
+
+    return true;
+}
+
 // CRedisServer methods
-CRedisServer::CRedisServer(const std::string &strHost, int nPort, int nTimeout, int nConnNum)
-    : m_strHost(strHost), m_nPort(nPort), m_nCliTimeout(nTimeout), m_nSerTimeout(0), m_nConnNum(nConnNum)
+CRedisServer::CRedisServer(const std::string &strHost, int nPort, int nTimeout, int nConnNum, int nDb)
+    : m_strHost(strHost), m_nPort(nPort), m_nCliTimeout(nTimeout), m_nSerTimeout(0), m_nConnNum(nConnNum), m_nDb(nDb)
 {
     SetSlave(strHost, nPort);
     Initialize();
@@ -910,7 +948,7 @@ CRedisClient::~CRedisClient()
     pthread_rwlock_destroy(&m_rwLock);
 }
 
-bool CRedisClient::Initialize(const std::string &strHost, int nPort, int nTimeout, int nConnNum)
+bool CRedisClient::Initialize(const std::string &strHost, int nPort, int nTimeout, int nConnNum, int nDatabase)
 {
     std::string::size_type nPos = strHost.find(':');
     m_strHost = (nPos == std::string::npos) ? strHost : strHost.substr(0, nPos);
@@ -920,18 +958,20 @@ bool CRedisClient::Initialize(const std::string &strHost, int nPort, int nTimeou
     if (m_strHost.empty() || m_nPort <= 0 || m_nTimeout <= 0 || m_nConnNum <= 0)
         return false;
 
-    CRedisServer *pRedisServ = new CRedisServer(m_strHost, m_nPort, m_nTimeout, m_nConnNum);
-    if (!pRedisServ->IsValid())
+    CRedisServer *pRedisServ = new CRedisServer(m_strHost, m_nPort, m_nTimeout, m_nConnNum, nDatabase);
+    if (!pRedisServ->IsValid()) {
         return false;
-
+    }
+        
     std::string strInfo;
     std::map<std::string, std::string> mapInfo;
     CRedisCommand redisCmd("info");
     redisCmd.SetArgs();
     if (pRedisServ->ServRequest(&redisCmd) != RC_SUCCESS ||
         redisCmd.FetchResult(BIND_STR(&strInfo)) != RC_SUCCESS ||
-        !ConvertToMapInfo(strInfo, mapInfo))
+        !ConvertToMapInfo(strInfo, mapInfo)) {
         return false;
+    }
 
     auto it = mapInfo.find("cluster_enabled");
     if (it == mapInfo.end())
@@ -942,6 +982,7 @@ bool CRedisClient::Initialize(const std::string &strHost, int nPort, int nTimeou
     m_vecRedisServ.push_back(pRedisServ);
     m_bValid = (m_bCluster ? LoadClusterSlots() : LoadSlaveInfo(mapInfo)) &&
         (m_pThread = new std::thread(std::bind(&CRedisClient::operator(), this))) != nullptr;
+
     return m_bValid;
 }
 
@@ -1112,6 +1153,21 @@ int CRedisClient::Ttl(const std::string &strKey, long *pnVal, Pipeline ppLine)
 int CRedisClient::Type(const std::string &strKey, std::string *pstrVal, Pipeline ppLine)
 {
     return ExecuteImpl("type", strKey, HASH_SLOT(strKey), ppLine, BIND_STR(pstrVal));
+}
+
+int CRedisClient::Select(int nDbId)
+{
+    std::string result;
+    int ret = ExecuteImpl("SELECT", std::to_string(nDbId), -1, nullptr, BIND_STR(&result));
+    if  (ret != RC_SUCCESS) {
+        return ret;
+    }
+
+    if (result != "OK") {
+        return RC_REPLY_ERR;
+    }
+
+    return ret;
 }
 
 /* interfaces for string */
