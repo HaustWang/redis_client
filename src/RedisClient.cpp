@@ -10,47 +10,46 @@
 
 // crc16 for computing redis cluster slot
 static const uint16_t crc16Table[256] =
-{
-    0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
-    0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
-    0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,
-    0x9339, 0x8318, 0xb37b, 0xa35a, 0xd3bd, 0xc39c, 0xf3ff, 0xe3de,
-    0x2462, 0x3443, 0x0420, 0x1401, 0x64e6, 0x74c7, 0x44a4, 0x5485,
-    0xa56a, 0xb54b, 0x8528, 0x9509, 0xe5ee, 0xf5cf, 0xc5ac, 0xd58d,
-    0x3653, 0x2672, 0x1611, 0x0630, 0x76d7, 0x66f6, 0x5695, 0x46b4,
-    0xb75b, 0xa77a, 0x9719, 0x8738, 0xf7df, 0xe7fe, 0xd79d, 0xc7bc,
-    0x48c4, 0x58e5, 0x6886, 0x78a7, 0x0840, 0x1861, 0x2802, 0x3823,
-    0xc9cc, 0xd9ed, 0xe98e, 0xf9af, 0x8948, 0x9969, 0xa90a, 0xb92b,
-    0x5af5, 0x4ad4, 0x7ab7, 0x6a96, 0x1a71, 0x0a50, 0x3a33, 0x2a12,
-    0xdbfd, 0xcbdc, 0xfbbf, 0xeb9e, 0x9b79, 0x8b58, 0xbb3b, 0xab1a,
-    0x6ca6, 0x7c87, 0x4ce4, 0x5cc5, 0x2c22, 0x3c03, 0x0c60, 0x1c41,
-    0xedae, 0xfd8f, 0xcdec, 0xddcd, 0xad2a, 0xbd0b, 0x8d68, 0x9d49,
-    0x7e97, 0x6eb6, 0x5ed5, 0x4ef4, 0x3e13, 0x2e32, 0x1e51, 0x0e70,
-    0xff9f, 0xefbe, 0xdfdd, 0xcffc, 0xbf1b, 0xaf3a, 0x9f59, 0x8f78,
-    0x9188, 0x81a9, 0xb1ca, 0xa1eb, 0xd10c, 0xc12d, 0xf14e, 0xe16f,
-    0x1080, 0x00a1, 0x30c2, 0x20e3, 0x5004, 0x4025, 0x7046, 0x6067,
-    0x83b9, 0x9398, 0xa3fb, 0xb3da, 0xc33d, 0xd31c, 0xe37f, 0xf35e,
-    0x02b1, 0x1290, 0x22f3, 0x32d2, 0x4235, 0x5214, 0x6277, 0x7256,
-    0xb5ea, 0xa5cb, 0x95a8, 0x8589, 0xf56e, 0xe54f, 0xd52c, 0xc50d,
-    0x34e2, 0x24c3, 0x14a0, 0x0481, 0x7466, 0x6447, 0x5424, 0x4405,
-    0xa7db, 0xb7fa, 0x8799, 0x97b8, 0xe75f, 0xf77e, 0xc71d, 0xd73c,
-    0x26d3, 0x36f2, 0x0691, 0x16b0, 0x6657, 0x7676, 0x4615, 0x5634,
-    0xd94c, 0xc96d, 0xf90e, 0xe92f, 0x99c8, 0x89e9, 0xb98a, 0xa9ab,
-    0x5844, 0x4865, 0x7806, 0x6827, 0x18c0, 0x08e1, 0x3882, 0x28a3,
-    0xcb7d, 0xdb5c, 0xeb3f, 0xfb1e, 0x8bf9, 0x9bd8, 0xabbb, 0xbb9a,
-    0x4a75, 0x5a54, 0x6a37, 0x7a16, 0x0af1, 0x1ad0, 0x2ab3, 0x3a92,
-    0xfd2e, 0xed0f, 0xdd6c, 0xcd4d, 0xbdaa, 0xad8b, 0x9de8, 0x8dc9,
-    0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
-    0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8,
-    0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
-};
+    {
+        0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
+        0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
+        0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,
+        0x9339, 0x8318, 0xb37b, 0xa35a, 0xd3bd, 0xc39c, 0xf3ff, 0xe3de,
+        0x2462, 0x3443, 0x0420, 0x1401, 0x64e6, 0x74c7, 0x44a4, 0x5485,
+        0xa56a, 0xb54b, 0x8528, 0x9509, 0xe5ee, 0xf5cf, 0xc5ac, 0xd58d,
+        0x3653, 0x2672, 0x1611, 0x0630, 0x76d7, 0x66f6, 0x5695, 0x46b4,
+        0xb75b, 0xa77a, 0x9719, 0x8738, 0xf7df, 0xe7fe, 0xd79d, 0xc7bc,
+        0x48c4, 0x58e5, 0x6886, 0x78a7, 0x0840, 0x1861, 0x2802, 0x3823,
+        0xc9cc, 0xd9ed, 0xe98e, 0xf9af, 0x8948, 0x9969, 0xa90a, 0xb92b,
+        0x5af5, 0x4ad4, 0x7ab7, 0x6a96, 0x1a71, 0x0a50, 0x3a33, 0x2a12,
+        0xdbfd, 0xcbdc, 0xfbbf, 0xeb9e, 0x9b79, 0x8b58, 0xbb3b, 0xab1a,
+        0x6ca6, 0x7c87, 0x4ce4, 0x5cc5, 0x2c22, 0x3c03, 0x0c60, 0x1c41,
+        0xedae, 0xfd8f, 0xcdec, 0xddcd, 0xad2a, 0xbd0b, 0x8d68, 0x9d49,
+        0x7e97, 0x6eb6, 0x5ed5, 0x4ef4, 0x3e13, 0x2e32, 0x1e51, 0x0e70,
+        0xff9f, 0xefbe, 0xdfdd, 0xcffc, 0xbf1b, 0xaf3a, 0x9f59, 0x8f78,
+        0x9188, 0x81a9, 0xb1ca, 0xa1eb, 0xd10c, 0xc12d, 0xf14e, 0xe16f,
+        0x1080, 0x00a1, 0x30c2, 0x20e3, 0x5004, 0x4025, 0x7046, 0x6067,
+        0x83b9, 0x9398, 0xa3fb, 0xb3da, 0xc33d, 0xd31c, 0xe37f, 0xf35e,
+        0x02b1, 0x1290, 0x22f3, 0x32d2, 0x4235, 0x5214, 0x6277, 0x7256,
+        0xb5ea, 0xa5cb, 0x95a8, 0x8589, 0xf56e, 0xe54f, 0xd52c, 0xc50d,
+        0x34e2, 0x24c3, 0x14a0, 0x0481, 0x7466, 0x6447, 0x5424, 0x4405,
+        0xa7db, 0xb7fa, 0x8799, 0x97b8, 0xe75f, 0xf77e, 0xc71d, 0xd73c,
+        0x26d3, 0x36f2, 0x0691, 0x16b0, 0x6657, 0x7676, 0x4615, 0x5634,
+        0xd94c, 0xc96d, 0xf90e, 0xe92f, 0x99c8, 0x89e9, 0xb98a, 0xa9ab,
+        0x5844, 0x4865, 0x7806, 0x6827, 0x18c0, 0x08e1, 0x3882, 0x28a3,
+        0xcb7d, 0xdb5c, 0xeb3f, 0xfb1e, 0x8bf9, 0x9bd8, 0xabbb, 0xbb9a,
+        0x4a75, 0x5a54, 0x6a37, 0x7a16, 0x0af1, 0x1ad0, 0x2ab3, 0x3a92,
+        0xfd2e, 0xed0f, 0xdd6c, 0xcd4d, 0xbdaa, 0xad8b, 0x9de8, 0x8dc9,
+        0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
+        0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8,
+        0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0};
 
 uint16_t CRC16(const char *pszData, int nLen)
 {
     int nCounter;
     uint16_t nCrc = 0;
     for (nCounter = 0; nCounter < nLen; nCounter++)
-        nCrc = (nCrc << 8) ^ crc16Table[((nCrc >> 8) ^ * pszData++) & 0x00FF];
+        nCrc = (nCrc << 8) ^ crc16Table[((nCrc >> 8) ^ *pszData++) & 0x00FF];
     return nCrc;
 }
 
@@ -83,7 +82,7 @@ uint32_t HASH_SLOT(const std::string &strKey)
     return CRC16(pszKey + nStart + 1, nEnd - nStart - 1) & 16383;
 }
 
-static inline std::ostream & operator<<(std::ostream &os, const std::pair<int, redisReply *> &pairReply)
+static inline std::ostream &operator<<(std::ostream &os, const std::pair<int, redisReply *> &pairReply)
 {
     int nLevel = pairReply.first;
     redisReply *pReply = pairReply.second;
@@ -99,7 +98,7 @@ static inline std::ostream & operator<<(std::ostream &os, const std::pair<int, r
         os << "string: " << pReply->str << std::endl;
     else if (pReply->type == REDIS_REPLY_ARRAY)
     {
-        os <<  "array: " << std::endl;
+        os << "array: " << std::endl;
         for (unsigned int j = 0; j < pReply->elements; ++j)
             os << std::make_pair(nLevel + 1, pReply->element[j]);
     }
@@ -114,7 +113,7 @@ static inline std::ostream & operator<<(std::ostream &os, const std::pair<int, r
     return os;
 }
 
-static inline std::ostream & operator<<(std::ostream &os, redisReply *pReply)
+static inline std::ostream &operator<<(std::ostream &os, redisReply *pReply)
 {
     return os << std::make_pair(0, pReply);
 }
@@ -128,7 +127,7 @@ std::string ConvertToString(T t)
 }
 
 // for finding matched slot/server with binary search
-bool operator< (const SlotRegion &lReg, const SlotRegion &rReg)
+bool operator<(const SlotRegion &lReg, const SlotRegion &rReg)
 {
     return lReg.nStartSlot < rReg.nStartSlot;
 }
@@ -299,7 +298,7 @@ static inline int FetchMap(redisReply *pReply, std::map<std::string, std::string
         std::string strFld;
         std::string strVal;
         pmapFv->clear();
-        for (size_t i = 0; i < pReply->elements; )
+        for (size_t i = 0; i < pReply->elements;)
         {
             int nSubRet = FetchString(pReply->element[i++], &strFld);
             if (nSubRet == RC_SUCCESS)
@@ -377,12 +376,12 @@ void CRedisCommand::ClearArgs()
         if (!m_bShareMem)
         {
             for (int i = 0; i < m_nArgs; ++i)
-                delete [] m_pszArgs[i];
+                delete[] m_pszArgs[i];
         }
-        delete [] m_pszArgs;
+        delete[] m_pszArgs;
     }
     if (m_pnArgsLen)
-        delete [] m_pnArgsLen;
+        delete[] m_pnArgsLen;
     if (m_pReply)
         freeReplyObject(m_pReply);
     m_pszArgs = nullptr;
@@ -620,9 +619,10 @@ CRedisConnection::CRedisConnection(CRedisServer *pRedisServ) : m_pContext(nullpt
 {
     Reconnect();
 }
-CRedisConnection::~CRedisConnection(){
+CRedisConnection::~CRedisConnection()
+{
 
-	if (m_pContext)
+    if (m_pContext)
         redisFree(m_pContext);
 }
 int CRedisConnection::ConnRequest(CRedisCommand *pRedisCmd)
@@ -688,7 +688,8 @@ bool CRedisConnection::ConnectToRedis(const std::string &strHost, int nPort, int
         return false;
     }
 
-    if(!CheckAndSetDb(true)) {
+    if (!Authentication() || !CheckAndSetDb(true))
+    {
         if (m_pContext)
         {
             redisFree(m_pContext);
@@ -722,24 +723,57 @@ bool CRedisConnection::Reconnect()
     return false;
 }
 
-inline bool CRedisConnection::CheckAndSetDb(bool connecting) {
-    if (!m_pContext) {
+bool CRedisConnection::Authentication()
+{
+    if (!m_pContext)
+    {
         return false;
     }
 
-    if (!connecting && m_nCurrDb == m_pRedisServ->m_nDb) {
+    if (m_pRedisServ->m_strPwd.empty())
+    {
         return true;
     }
 
-    auto* reply = static_cast<redisReply*>(redisCommand(m_pContext, "SELECT %d", m_pRedisServ->m_nDb));
-    if (!reply) {
+    auto *reply = static_cast<redisReply *>(redisCommand(m_pContext, "AUTH %s", m_pRedisServ->m_strPwd.c_str()));
+    if (!reply)
+    {
         return false;
     }
 
-    if (reply->str == nullptr || strncasecmp(reply->str,  "OK", 2) != 0) {
+    if (reply->str == nullptr || strncasecmp(reply->str, "OK", 2) != 0)
+    {
         freeReplyObject(reply);
         return false;
-    } 
+    }
+
+    freeReplyObject(reply);
+    return true;
+}
+
+inline bool CRedisConnection::CheckAndSetDb(bool connecting)
+{
+    if (!m_pContext)
+    {
+        return false;
+    }
+
+    if (!connecting && m_nCurrDb == m_pRedisServ->m_nDb)
+    {
+        return true;
+    }
+
+    auto *reply = static_cast<redisReply *>(redisCommand(m_pContext, "SELECT %d", m_pRedisServ->m_nDb));
+    if (!reply)
+    {
+        return false;
+    }
+
+    if (reply->str == nullptr || strncasecmp(reply->str, "OK", 2) != 0)
+    {
+        freeReplyObject(reply);
+        return false;
+    }
 
     m_nCurrDb = m_pRedisServ->m_nDb;
     freeReplyObject(reply);
@@ -748,8 +782,8 @@ inline bool CRedisConnection::CheckAndSetDb(bool connecting) {
 }
 
 // CRedisServer methods
-CRedisServer::CRedisServer(const std::string &strHost, int nPort, int nTimeout, int nConnNum, int nDb)
-    : m_strHost(strHost), m_nPort(nPort), m_nCliTimeout(nTimeout), m_nSerTimeout(0), m_nConnNum(nConnNum), m_nDb(nDb)
+CRedisServer::CRedisServer(const std::string &strHost, int nPort, std::string const &strPwd, int nTimeout, int nConnNum, int nDb)
+    : m_strHost(strHost), m_nPort(nPort), m_strPwd(strPwd), m_nCliTimeout(nTimeout), m_nSerTimeout(0), m_nConnNum(nConnNum), m_nDb(nDb)
 {
     SetSlave(strHost, nPort);
     Initialize();
@@ -776,7 +810,7 @@ void CRedisServer::SetSlave(const std::string &strHost, int nPort)
     m_vecHosts.push_back(std::make_pair(strHost, nPort));
 }
 
-CRedisConnection * CRedisServer::FetchConnection()
+CRedisConnection *CRedisServer::FetchConnection()
 {
     CRedisConnection *pRedisConn = nullptr;
     m_mutexConn.lock();
@@ -948,28 +982,31 @@ CRedisClient::~CRedisClient()
     pthread_rwlock_destroy(&m_rwLock);
 }
 
-bool CRedisClient::Initialize(const std::string &strHost, int nPort, int nTimeout, int nConnNum, int nDatabase)
+bool CRedisClient::Initialize(const std::string &strHost, int nPort, std::string const &strPwd, int nTimeout, int nConnNum, int nDatabase)
 {
     std::string::size_type nPos = strHost.find(':');
     m_strHost = (nPos == std::string::npos) ? strHost : strHost.substr(0, nPos);
     m_nPort = (nPos == std::string::npos) ? nPort : atoi(strHost.substr(nPos + 1).c_str());
+    m_strPwd = strPwd;
     m_nTimeout = nTimeout;
     m_nConnNum = nConnNum;
     if (m_strHost.empty() || m_nPort <= 0 || m_nTimeout <= 0 || m_nConnNum <= 0)
         return false;
 
-    CRedisServer *pRedisServ = new CRedisServer(m_strHost, m_nPort, m_nTimeout, m_nConnNum, nDatabase);
-    if (!pRedisServ->IsValid()) {
+    CRedisServer *pRedisServ = new CRedisServer(m_strHost, m_nPort, strPwd, m_nTimeout, m_nConnNum, nDatabase);
+    if (!pRedisServ->IsValid())
+    {
         return false;
     }
-        
+
     std::string strInfo;
     std::map<std::string, std::string> mapInfo;
     CRedisCommand redisCmd("info");
     redisCmd.SetArgs();
     if (pRedisServ->ServRequest(&redisCmd) != RC_SUCCESS ||
         redisCmd.FetchResult(BIND_STR(&strInfo)) != RC_SUCCESS ||
-        !ConvertToMapInfo(strInfo, mapInfo)) {
+        !ConvertToMapInfo(strInfo, mapInfo))
+    {
         return false;
     }
 
@@ -981,7 +1018,7 @@ bool CRedisClient::Initialize(const std::string &strHost, int nPort, int nTimeou
 
     m_vecRedisServ.push_back(pRedisServ);
     m_bValid = (m_bCluster ? LoadClusterSlots() : LoadSlaveInfo(mapInfo)) &&
-        (m_pThread = new std::thread(std::bind(&CRedisClient::operator(), this))) != nullptr;
+               (m_pThread = new std::thread(std::bind(&CRedisClient::operator(), this))) != nullptr;
 
     return m_bValid;
 }
@@ -1159,11 +1196,13 @@ int CRedisClient::Select(int nDbId)
 {
     std::string result;
     int ret = ExecuteImpl("SELECT", std::to_string(nDbId), -1, nullptr, BIND_STR(&result));
-    if  (ret != RC_SUCCESS) {
+    if (ret != RC_SUCCESS)
+    {
         return ret;
     }
 
-    if (result != "OK") {
+    if (result != "OK")
+    {
         return RC_REPLY_ERR;
     }
 
@@ -1413,10 +1452,10 @@ int CRedisClient::Lpush(const std::string &strKey, const std::string &strVal, lo
     return ExecuteImpl("lpush", strKey, strVal, HASH_SLOT(strKey), ppLine, BIND_INT(pnVal));
 }
 
-//int CRedisClient::Lpush(const std::string &strKey, const std::vector<std::string> &vecVal, Pipeline ppLine)
+// int CRedisClient::Lpush(const std::string &strKey, const std::vector<std::string> &vecVal, Pipeline ppLine)
 //{
-//    return ExecuteImpl("lpush", BIND_INT(nullptr), strKey, vecVal, HASH_SLOT(strKey), ppLine);
-//}
+//     return ExecuteImpl("lpush", BIND_INT(nullptr), strKey, vecVal, HASH_SLOT(strKey), ppLine);
+// }
 
 int CRedisClient::Lpushx(const std::string &strKey, const std::string &strVal, long *pnVal, Pipeline ppLine)
 {
@@ -1453,7 +1492,7 @@ int CRedisClient::Rpush(const std::string &strKey, const std::string &strVal, lo
     return ExecuteImpl("rpush", strKey, strVal, HASH_SLOT(strKey), ppLine, BIND_INT(pnVal));
 }
 //
-//int CRedisClient::Rpush(const std::string &strKey, const std::vector<std::string> &vecVal, Pipeline ppLine)
+// int CRedisClient::Rpush(const std::string &strKey, const std::vector<std::string> &vecVal, Pipeline ppLine)
 //{
 //    return ExecuteImpl("rpush", BIND_INT(nullptr), strKey, vecVal, HASH_SLOT(strKey), ppLine);
 //}
@@ -1474,8 +1513,8 @@ int CRedisClient::Scard(const std::string &strKey, long *pnVal, Pipeline ppLine)
     return ExecuteImpl("scard", strKey, HASH_SLOT(strKey), ppLine, BIND_INT(pnVal));
 }
 
-//int CRedisClient::Sdiff(const std::vector<std::string> &vecKey, std::vector<std::string> *pvecVal, Pipeline ppLine = nullptr);
-//int CRedisClient::Sinter(const std::vector<std::string> &vecKey, std::vector<std::string> *pvecVal, Pipeline ppLine = nullptr);
+// int CRedisClient::Sdiff(const std::vector<std::string> &vecKey, std::vector<std::string> *pvecVal, Pipeline ppLine = nullptr);
+// int CRedisClient::Sinter(const std::vector<std::string> &vecKey, std::vector<std::string> *pvecVal, Pipeline ppLine = nullptr);
 int CRedisClient::Sismember(const std::string &strKey, const std::string &strVal, long *pnVal, Pipeline ppLine)
 {
     return ExecuteImpl("sismember", strKey, strVal, HASH_SLOT(strKey), ppLine, BIND_INT(pnVal));
@@ -1491,7 +1530,7 @@ int CRedisClient::Spop(const std::string &strKey, std::string *pstrVal, Pipeline
     return ExecuteImpl("spop", strKey, HASH_SLOT(strKey), ppLine, BIND_STR(pstrVal));
 }
 
-//int CRedisClient::Srandmember(const std::string &strKey, long nCount, std::vector<std::string> *pvecVal, Pipeline ppLine = nullptr);
+// int CRedisClient::Srandmember(const std::string &strKey, long nCount, std::vector<std::string> *pvecVal, Pipeline ppLine = nullptr);
 int CRedisClient::Srem(const std::string &strKey, const std::string &strVal, long *pnVal, Pipeline ppLine)
 {
     return ExecuteImpl("srem", strKey, strVal, HASH_SLOT(strKey), ppLine, BIND_INT(pnVal));
@@ -1502,7 +1541,7 @@ int CRedisClient::Srem(const std::string &strKey, const std::vector<std::string>
     return ExecuteImpl("srem", strKey, vecVal, HASH_SLOT(strKey), ppLine, BIND_INT(pnVal));
 }
 
-//int CRedisClient::Sunion(const std::vector<std::string> &vecKey, std::vector<std::string> *pvecVal, Pipeline ppLine = nullptr);
+// int CRedisClient::Sunion(const std::vector<std::string> &vecKey, std::vector<std::string> *pvecVal, Pipeline ppLine = nullptr);
 
 /* interfaces for hash */
 int CRedisClient::Hdel(const std::string &strKey, const std::string &strField, long *pnVal, Pipeline ppLine)
@@ -1589,7 +1628,7 @@ int CRedisClient::Hmget(const std::string &strKey, const std::set<std::string> &
     if (nRet == RC_SUCCESS)
     {
         if (vecVal.size() != setField.size())
-            nRet =  RC_RQST_ERR;
+            nRet = RC_RQST_ERR;
         else if (pmapVal)
         {
             pmapVal->clear();
@@ -1809,23 +1848,23 @@ int CRedisClient::FlushPipeline(Pipeline ppLine)
     }
 }
 
-#define MacroDefine(type, func) \
-int CRedisClient::FetchReply(Pipeline ppLine, type tVal) \
-{ \
-    if (!ppLine) \
-        return RC_NO_RESOURCE; \
-    \
-    CRedisPipeline *pPipeline = static_cast<CRedisPipeline *>(ppLine); \
-    return pPipeline->FetchNext(func(tVal)); \
-}
+#define MacroDefine(type, func)                                            \
+    int CRedisClient::FetchReply(Pipeline ppLine, type tVal)               \
+    {                                                                      \
+        if (!ppLine)                                                       \
+            return RC_NO_RESOURCE;                                         \
+                                                                           \
+        CRedisPipeline *pPipeline = static_cast<CRedisPipeline *>(ppLine); \
+        return pPipeline->FetchNext(func(tVal));                           \
+    }
 
 MacroDefine(long *, BIND_INT)
-MacroDefine(std::string *, BIND_STR)
-MacroDefine(std::vector<long> *, BIND_VINT)
-MacroDefine(std::vector<std::string> *, BIND_VSTR)
+    MacroDefine(std::string *, BIND_STR)
+        MacroDefine(std::vector<long> *, BIND_VINT)
+            MacroDefine(std::vector<std::string> *, BIND_VSTR)
 #undef MacroDefine
 
-int CRedisClient::FetchReply(Pipeline ppLine, redisReply **pReply)
+                int CRedisClient::FetchReply(Pipeline ppLine, redisReply **pReply)
 {
     if (!ppLine)
         return RC_NO_RESOURCE;
@@ -1902,7 +1941,7 @@ bool CRedisClient::LoadClusterSlots()
             {
                 if (!(pSlotServ = FindServer(vecRedisServ, slotReg.strHost, slotReg.nPort)))
                 {
-                    pSlotServ = new CRedisServer(slotReg.strHost, slotReg.nPort, m_nTimeout, m_nConnNum);
+                    pSlotServ = new CRedisServer(slotReg.strHost, slotReg.nPort, m_strPwd, m_nTimeout, m_nConnNum);
                     if (!pSlotServ->IsValid())
                     {
                         for (auto pRedisServ : vecRedisServ)
@@ -2002,7 +2041,7 @@ bool CRedisClient::ConvertToMapInfo(const std::string &strVal, std::map<std::str
     return true;
 }
 
-CRedisServer * CRedisClient::GetMatchedServer(const CRedisCommand *pRedisCmd) const
+CRedisServer *CRedisClient::GetMatchedServer(const CRedisCommand *pRedisCmd) const
 {
     if (!m_bCluster)
         return m_vecRedisServ.empty() ? nullptr : m_vecRedisServ[0];
@@ -2019,7 +2058,7 @@ CRedisServer * CRedisClient::GetMatchedServer(const CRedisCommand *pRedisCmd) co
     }
 }
 
-CRedisServer * CRedisClient::FindServer(int nSlot) const
+CRedisServer *CRedisClient::FindServer(int nSlot) const
 {
     auto pairIter = std::equal_range(m_vecSlot.begin(), m_vecSlot.end(), nSlot, CompSlot());
     if (pairIter.first != m_vecSlot.end() && pairIter.first != pairIter.second)
@@ -2028,7 +2067,7 @@ CRedisServer * CRedisClient::FindServer(int nSlot) const
         return nullptr;
 }
 
-CRedisServer * CRedisClient::FindServer(const std::vector<CRedisServer *> &vecRedisServ, const std::string &strHost, int nPort)
+CRedisServer *CRedisClient::FindServer(const std::vector<CRedisServer *> &vecRedisServ, const std::string &strHost, int nPort)
 {
     for (auto &pRedisServ : vecRedisServ)
     {

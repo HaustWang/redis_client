@@ -138,6 +138,7 @@ private:
     bool CheckAndSetDb(bool connecting);
     bool ConnectToRedis(const std::string &strHost, int nPort, int nTimeout);
     bool Reconnect();
+    bool Authentication();
 
 private:
     redisContext *m_pContext;
@@ -151,7 +152,7 @@ class CRedisServer
     friend class CRedisConnection;
     friend class CRedisClient;
 public:
-    CRedisServer(const std::string &strHost, int nPort, int nTimeout, int nConnNum, int nDb=0);
+    CRedisServer(const std::string &strHost, int nPort, std::string const& strPwd, int nTimeout, int nConnNum, int nDb=0);
     virtual ~CRedisServer();
 
     void SetSlave(const std::string &strHost, int nPort);
@@ -175,6 +176,7 @@ private:
 private:
     std::string m_strHost;
     int m_nPort;
+    std::string m_strPwd;
     int m_nCliTimeout;
     int m_nSerTimeout;
     int m_nConnNum;
@@ -214,7 +216,7 @@ public:
     CRedisClient();
     ~CRedisClient();
 
-    bool Initialize(const std::string &strHost, int nPort, int nTimeout = 3, int nConnNum = 4, int nDatabase = 0);
+    bool Initialize(const std::string &strHost, int nPort, std::string const& strPwd = "", int nTimeout = 3, int nConnNum = 4, int nDatabase = 0);
     bool IsCluster() { return m_bCluster; }
 
     Pipeline CreatePipeline();
@@ -440,6 +442,7 @@ private:
 private:
     std::string m_strHost;
     int m_nPort;
+    std::string m_strPwd;
     int m_nTimeout;
     int m_nConnNum;
     bool m_bCluster;
